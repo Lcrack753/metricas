@@ -1,5 +1,7 @@
-from config import YOUTUBE_KEY, INSTAGRAM_KEY, X_KEY, FACEBOOK_KEY
+from .config import YOUTUBE_KEY, INSTAGRAM_KEY, X_KEY, FACEBOOK_KEY
 
+import requests
+from pprint import pprint
 class MetricasKeys():
     """Object for handind keys"""
 
@@ -46,9 +48,34 @@ class MetricasKeys():
     def facebook(self, value):
         self._facebook_key = value
 
-    def _validate_youtube_key(self, key: str) -> bool:
+    def _validate_youtube_key(self, key: str = None) -> bool:
+        if key is None:
+            key = self._youtube_key
 
-        return True if key else False
+        if not key:
+            print("Error: No API key provided.")
+            return False
+
+        try:
+            response = requests.get(f'https://www.googleapis.com/youtube/v3/search',
+                                    params={
+                                        'key': key
+                                    })
+            
+            if response.status_code == 200:
+                data = response.json()
+                if 'error' in data:
+                    print(f"Error: {data['error']['message']}")
+                    return False
+                return True
+
+            else:
+                print(f"Error: HTTP {response.status_code} - {response.reason}")
+                return False
+
+        except requests.RequestException as e:
+            print(f"Request failed: {e}")
+            return False
 
     def _validate_instagram_key(self, key: str) -> bool:
         return True if key else False
@@ -62,4 +89,6 @@ class MetricasKeys():
 
 
 if __name__ == '__main__':
-    print(YOUTUBE_KEY)
+    keys = MetricasKeys()
+    keys.youtube = YOUTUBE_KEY
+    print(keys._validate_youtube_key())

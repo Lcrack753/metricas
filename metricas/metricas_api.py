@@ -96,22 +96,68 @@ class APIClient:
 
 
 class YouTubeAPI(APIClient):
-    def __init__(self, api_key: str) -> None:
+    def __init__(self, api_key: str, userId: str = None, userName: str = None) -> None:
         super().__init__('https://www.googleapis.com/youtube/v3', api_key)
+        self._userId = userId
+        self._userName = userName
+
+    
+    @property
+    def userId(self):
+        return self._userId
+    
+    @userId.setter
+    def userId(self, value):
+        self._userId = value
+
+    @property
+    def userName(self):
+        return self._userName
+    
+    @userName.setter
+    def userName(self, value):
+        assert '@' in value and not ' ' in value, 'Error: userName must have @ and not spaces'
+        
+        params = {
+            'forHandle': value,
+            'part': 'id'
+        }
+        response = self._make_request('/channels', params=params)
+        
+        assert response['pageInfo']['totalResults'] == 1, 'Error: more than one channel'
+
+        self._userId = response['items'][0]['id']
+        self._userName = value
+
+    @userName.getter
+    def userName(self):
+        if self._userName:
+            return self._userName
+        
+        params = {
+            'id': self._userId,
+            'part': 'snippet'
+        }
+        response = self._make_request('/channels', params=params)
+        
+        assert response['pageInfo']['totalResults'] == 1, 'Error: more than one channel'
+
+        self._userName = response['items'][0]['snippet']['customUrl']
+        return self._userName
 
     def extract_etag(self, response: requests.Response) -> str:
-        """Extracts ETag from the response headers for YouTube API"""
+        """Extracts ETag from the response body for YouTube API"""
         return response.json().get('etag')
 
-    def channel_data(self, username: str) -> dict:
-        """Get data from a channel by @username."""
-        if not '@' in username:
-            print('Error: username must have @')
+    def channel_data(self) -> dict:
+        """Get data from a channel"""
+        if not self._userId:
+            print('Error: Must define userId')
             return {}
         
         params = {
-            'forHandle': username,
-            'part': 'statistics,status,snippet'
+            'part': 'statistics,status,snippet',
+            'id': self._userId
         }
 
         response = self._make_request('/channels', params=params)
@@ -122,24 +168,35 @@ class YouTubeAPI(APIClient):
             return {}
         return response
 
-    def _channel_videos_ids(self, username: str = None, id: str = None):
-        if id:
-            channel_id = id
-        elif username:
-            channel_id = self.channel_data(username)['items'][0]['id']
-        else:
-            print('Error: No id or user provided')
+    def _channel_videos(self):
+        """Get channel videos search response"""
+        if not self._userId:
+            print('Error: Must define userId')
             return {}
+        
         params = {
-            'channelId': channel_id,
+            'channelId': self._userId,
             'maxResults': 10,
-            'order': 'date'
+            'order': 'date',
+            'type': 'video',
         }
+
         response = self._make_request('/search', params)
         return response
+    
+    def channel_videos_id(self):
+        """Cleared channel videos search response"""
+        data = self._channel_videos()
+        return [video['id']['videoId'] for video in data['items']]
+
+    def videos_data(self):
+        pass
 
 if __name__ == '__main__':
-        # clear_cache()
-        youtube = YouTubeAPI(api_key=YOUTUBE_KEY)
-        data = youtube.channel_data(username='@HALIDONMUSIC')
-        pprint(data)
+    # clear_cache()
+    youtube = YouTubeAPI(api_key=YOUTUBE_KEY)
+    # youtube.userName = '@infoJST'
+    youtube.userId = 'UC_R6ZS7eKS8wZgJaOnc-9rA'
+    data = youtube.channel_data()
+    print(data)
+    

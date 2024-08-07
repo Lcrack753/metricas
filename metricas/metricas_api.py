@@ -1,94 +1,145 @@
-from .config import YOUTUBE_KEY, INSTAGRAM_KEY, X_KEY, FACEBOOK_KEY
-
+from API_config import YOUTUBE_KEY
 import requests
+import os
+import json
+import hashlib
 from pprint import pprint
-class MetricasKeys():
-    """Object for handind keys"""
 
-    def __init__(self,
-                 youtube_key: str = None,
-                 instagram_key: str = None,
-                 x_key: str = None,
-                 facebook_key: str = None
-                 ) -> None:
-        self._youtube_key = youtube_key
-        self._instagram_key = instagram_key
-        self._x_key = x_key
-        self._facebook_key = facebook_key
+# Cache Manage
+BASE_DIR = os.path.dirname(__file__)
+CACHE_DIR = os.path.join(BASE_DIR, 'cache_directory')
 
-    @property
-    def youtube(self):
-        return self._youtube_key
-    
-    @youtube.setter
-    def youtube(self, value):
-        self._youtube_key = value
+if not os.path.exists(CACHE_DIR):
+    os.makedirs(CACHE_DIR)
 
-    @property
-    def instagram(self):
-        return self._instagram_key
-    
-    @instagram.setter
-    def instagram(self, value):
-        self._instagram_key = value
+def generate_cache_key(endpoint: str, params: dict) -> str:
+    """Generates a unique cache key from the endpoint and parameters"""
+    key = f'{endpoint}_{json.dumps(params, sort_keys=True)}'
+    return hashlib.md5(key.encode('utf-8')).hexdigest()
 
-    @property
-    def x(self):
-        return self._x_key
-    
-    @x.setter
-    def x(self, value):
-        self._x_key = value
+def get_cache_file_path(cache_key: str) -> str:
+    """Generate cache file path based on key"""
+    return os.path.join(CACHE_DIR, f'{cache_key}.json')
 
-    @property
-    def facebook(self):
-        return self._facebook_key
-    
-    @facebook.setter
-    def facebook(self, value):
-        self._facebook_key = value
+def save_to_cache(cache_key: str, data: dict, etag: str = None) -> None:
+    """Saves data in a cache file along with the ETag"""
+    file_path = get_cache_file_path(cache_key)
+    cache_data = {
+        'data': data,
+        'etag': etag
+    }
+    with open(file_path, 'w', encoding='utf-8') as file:
+        json.dump(cache_data, file)
 
-    def _validate_youtube_key(self, key: str = None) -> bool:
-        if key is None:
-            key = self._youtube_key
+def read_from_cache(cache_key: str) -> dict:
+    """Reads data from a cache file"""
+    file_path = get_cache_file_path(cache_key)
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return json.load(file)
+    return {}
 
-        if not key:
-            print("Error: No API key provided.")
-            return False
+def clear_cache():
+    """Clear all cache files"""
+    for filename in os.listdir(CACHE_DIR):
+        file_path = os.path.join(CACHE_DIR, filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+class APIClient:
+    def __init__(self, base_url: str, api_key: str = None) -> None:
+        self.base_url = base_url
+        self.api_key = api_key
+
+    def _make_request(self, endpoint: str, params: dict = None) -> dict:
+        if params is None:
+            params = {}
+        if self.api_key:
+            params['key'] = self.api_key
+
+        cache_key = generate_cache_key(endpoint, params)
+        cached_response = read_from_cache(cache_key)
+        
+        headers = {}
+        if cached_response and 'etag' in cached_response:
+            headers['If-None-Match'] = cached_response['etag']
 
         try:
-            response = requests.get(f'https://www.googleapis.com/youtube/v3/search',
-                                    params={
-                                        'key': key
-                                    })
-            
-            if response.status_code == 200:
-                data = response.json()
-                if 'error' in data:
-                    print(f"Error: {data['error']['message']}")
-                    return False
-                return True
+            response = requests.get(f"{self.base_url}{endpoint}", params=params, headers=headers)
+            if response.status_code == 304:
+                # Return cached response if server indicates not modified
+                print(f"Using cached response (304 Not Modified)\nrequest: {self.base_url+endpoint}")
+                return cached_response['data']
 
-            else:
-                print(f"Error: HTTP {response.status_code} - {response.reason}")
-                return False
+            response.raise_for_status()
+            data = response.json()
+            etag = self.extract_etag(response)
+            if 'error' in data:
+                print(f"API Error: {data['error']['message']}")
+                return {}
 
+            # Save the new data to cache
+            save_to_cache(cache_key, data, etag)
+            print(f"New Cache\nrequest: {self.base_url+endpoint}")
+
+            return data
+        except requests.HTTPError as e:
+            print(f"HTTP error occurred: {e}")
         except requests.RequestException as e:
             print(f"Request failed: {e}")
-            return False
+        return {}
 
-    def _validate_instagram_key(self, key: str) -> bool:
-        return True if key else False
+    def extract_etag(self, response: requests.Response) -> str:
+        """Extracts ETag from the response headers"""
+        # Default implementation; can be overridden in subclasses
+        return response.headers.get('ETag')
 
-    def _validate_x_key(self, key: str) -> bool:
-        return True if key else False
 
-    def _validate_facebook_key(self, key: str) -> bool:
-        return True if key else False
-    
+class YouTubeAPI(APIClient):
+    def __init__(self, api_key: str) -> None:
+        super().__init__('https://www.googleapis.com/youtube/v3', api_key)
 
+    def extract_etag(self, response: requests.Response) -> str:
+        """Extracts ETag from the response headers for YouTube API"""
+        return response.json().get('etag')
+
+    def channel_data(self, username: str) -> dict:
+        """Get data from a channel by @username."""
+        if not '@' in username:
+            print('Error: username must have @')
+            return {}
+        
+        params = {
+            'forHandle': username,
+            'part': 'statistics,status,snippet'
+        }
+
+        response = self._make_request('/channels', params=params)
+        result = response['pageInfo']['totalResults']
+        
+        if result != 1:
+            print(f'Error: there are {result} results')
+            return {}
+        return response
+
+    def _channel_videos_ids(self, username: str = None, id: str = None):
+        if id:
+            channel_id = id
+        elif username:
+            channel_id = self.channel_data(username)['items'][0]['id']
+        else:
+            print('Error: No id or user provided')
+            return {}
+        params = {
+            'channelId': channel_id,
+            'maxResults': 10,
+            'order': 'date'
+        }
+        response = self._make_request('/search', params)
+        return response
 
 if __name__ == '__main__':
-    keys = MetricasKeys()
-    keys.youtube = YOUTUBE_KEY
-    print(keys._validate_youtube_key())
+        # clear_cache()
+        youtube = YouTubeAPI(api_key=YOUTUBE_KEY)
+        data = youtube.channel_data(username='@HALIDONMUSIC')
+        pprint(data)

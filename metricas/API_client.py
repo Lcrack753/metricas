@@ -1,4 +1,4 @@
-from API_config import YOUTUBE_KEY
+from metricas.API_config import YOUTUBE_KEY
 import requests
 import os
 import json
@@ -215,4 +215,4 @@ if __name__ == '__main__':
     # # youtube.userId = 'UC_R6ZS7eKS8wZgJaOnc-9rA'
     # data = youtube.videos_data()
     # pprint(data)
-    
+    pass

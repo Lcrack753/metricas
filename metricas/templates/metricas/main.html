@@ -4,9 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        .content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 1200px; /* Ajusta el ancho máximo según tus necesidades */
+            height: 500px; /* Ajusta la altura según tus necesidades */
+        }
+    </style>
 </head>
 <body>
-    <h1>Grafico</h1>
-    {{fig|safe}}
+    <div class="content">
+        <div class="chart-container">
+            {{ fig|safe }}
+        </div>
+    </div>
 </body>
 </html>

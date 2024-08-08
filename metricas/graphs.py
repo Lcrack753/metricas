@@ -2,6 +2,9 @@ from typing import Dict, List, Optional
 import requests
 from pprint import pprint
 
+import plotly.express as px
+import pandas as pd
+
 URL = 'http://127.0.0.1:8000/api/youtube?userId=UC_R6ZS7eKS8wZgJaOnc-9rA'
 DEFAULT_IMG_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/65/Baby.tux-800x800.png'
 
@@ -62,9 +65,43 @@ class YoutubeStatistics(StatisticsRequest):
 
         return clean_data
     
-    def video_chart(self,video: dict):
-        pass
+    def chart_views(self, videos: list[dict] = None):
+        if not videos:
+            data = self.clean_data()
+            videos = data.get('videos', [])
+        
+        assert len(videos) > 1, 'there must be more than one video'
 
+        date_views = [(video.get('publishedAt'), video.get('statistics').get('viewCount')) for video in videos]
+        df = pd.DataFrame.from_records(date_views, columns=['Date', 'Views'])
+        fig = px.line(df, x='Date', y='Views')
+        
+        # Set layout options for responsive behavior
+        fig.update_layout(
+            autosize=True,
+            margin=dict(l=0, r=0, t=0, b=0),
+            xaxis_title='Date',
+            yaxis_title='Views',
+            
+        )
+        
+        fig.update_xaxes(
+            ticks="outside",
+            ticklabelmode="period",
+            tickcolor="black",
+            ticklen=10,
+            minor=dict(
+                ticklen=4,
+                dtick=7*24*60*60*1000,
+                tick0="2016-07-03",
+                griddash='dot',
+                gridcolor='white'
+            )
+        )
+        
+        return fig
+            
 if __name__ == '__main__':
     graph = YoutubeStatistics(URL)
-    pprint(graph.clean_data())
+    fig = graph.chart_views()
+    fig.show()

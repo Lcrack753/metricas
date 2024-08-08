@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.views.decorators.cache import cache_page
+from django.urls import reverse
+
 
 from metricas.API_client import YouTubeAPI
 from metricas.API_config import YOUTUBE_KEY
-
+from metricas.graphs import YoutubeStatistics
 import plotly.express as px 
 
 @cache_page(60 * 10)
@@ -29,9 +31,11 @@ def youtube_api(request):
 # Create your views here.
 def main(request):
     context = {}
+    
+    userName = '@infoJST'
+    full_url = request.build_absolute_uri(reverse('api_youtube')) + f'?userName={userName}' 
 
-    df = px.data.gapminder().query("year == 2007").query("continent == 'Europe'")
-    df.loc[df['pop'] < 2.e6, 'country'] = 'Other countries' # Represent only large countries
-    fig = px.pie(df, values='pop', names='country', title='Population of European continent')
-    context['fig']=fig.to_html()
+    youtube_statistics = YoutubeStatistics(full_url)
+    fig = youtube_statistics.chart_views()
+    context['fig'] = fig.to_html()
     return render(request, 'metricas/main.html',context)

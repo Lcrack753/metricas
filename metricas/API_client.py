@@ -168,7 +168,7 @@ class YouTubeAPI(APIClient):
             return {}
         return response
 
-    def _channel_videos(self):
+    def _channel_videos(self) -> dict:
         """Get channel videos search response"""
         if not self._userId:
             print('Error: Must define userId')
@@ -184,19 +184,35 @@ class YouTubeAPI(APIClient):
         response = self._make_request('/search', params)
         return response
     
-    def channel_videos_id(self):
+    def channel_videos_id(self) -> list[str]:
         """Cleared channel videos search response"""
         data = self._channel_videos()
+        if not data:
+            print('Error: Data channel videos does not have content')
+            return {}
         return [video['id']['videoId'] for video in data['items']]
 
-    def videos_data(self):
-        pass
+    def videos_data(self, videos_ids: list[str] = None):
+        if not videos_ids:
+            videos_ids = self.channel_videos_id()
+        if len(videos_ids) < 1:
+            print('Error: Videos ids blank')
+            return {}
+        videos_ids_txt = ''
+        for videoId in videos_ids:
+            videos_ids_txt += videoId + ','
+        params = {
+            'part': 'id,snippet,statistics',
+            'id': videos_ids_txt
+        }
+        return self._make_request('/videos',params)
+    
 
 if __name__ == '__main__':
     # clear_cache()
-    youtube = YouTubeAPI(api_key=YOUTUBE_KEY)
+    # youtube = YouTubeAPI(api_key=YOUTUBE_KEY)
     # youtube.userName = '@infoJST'
-    youtube.userId = 'UC_R6ZS7eKS8wZgJaOnc-9rA'
-    data = youtube.channel_data()
-    print(data)
+    # # youtube.userId = 'UC_R6ZS7eKS8wZgJaOnc-9rA'
+    # data = youtube.videos_data()
+    # pprint(data)
     

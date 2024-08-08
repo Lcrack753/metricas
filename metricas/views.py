@@ -5,6 +5,8 @@ from django.views.decorators.cache import cache_page
 from metricas.API_client import YouTubeAPI
 from metricas.API_config import YOUTUBE_KEY
 
+import plotly.express as px 
+
 @cache_page(60 * 10)
 def youtube_api(request):
     userName = request.GET.get('userName')
@@ -26,4 +28,10 @@ def youtube_api(request):
 
 # Create your views here.
 def main(request):
-    return HttpResponse('hello word!')
+    context = {}
+
+    df = px.data.gapminder().query("year == 2007").query("continent == 'Europe'")
+    df.loc[df['pop'] < 2.e6, 'country'] = 'Other countries' # Represent only large countries
+    fig = px.pie(df, values='pop', names='country', title='Population of European continent')
+    context['fig']=fig.to_html()
+    return render(request, 'metricas/main.html',context)

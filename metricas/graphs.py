@@ -61,6 +61,9 @@ class YoutubeStatistics(StatisticsRequest):
             })
 
         return clean_data
+    
+    def video_chart(self,video: dict):
+        pass
 
 if __name__ == '__main__':
     graph = YoutubeStatistics(URL)

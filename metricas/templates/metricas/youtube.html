@@ -1,0 +1,41 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<div class="content-youtube roboto-bold">
+    <div class="header">
+        <div class="block">
+            <img src="{{data.channel.thumbnail}}" alt="Profile Photo" id="profilePhoto">
+            <div class="roboto-bold-italic">{{data.channel.title}}</div>
+        </div>
+        <div class="block">
+            <div style="color: var(--red);">{{data.channel.statistics.subscriberCount}} Suscriptions</div>
+            <div style="color: #0096c7;">{{data.channel.statistics.viewCount}} Views</div>
+        </div>
+        <div class="block" id="lastVideo">
+                <a href="{{data.videos.0.url}}">
+                    <img src="{{data.videos.0.thumbnail}}" alt="VideoThumbnail">
+                    <div class="block roboto-regular-italic">
+                        <div>{{data.videos.0.title}}</div>
+                        <div style="color: #0096c7;">{{data.videos.0.statistics.viewCount}} Views</div>
+                    </div>
+                </a>
+        </div>
+    </div>
+    <div class="graph1">{{fig|safe}}</div>
+    <div class="graph2">{{fig2|safe}}</div>
+    <div class="views">
+        <div class="">
+            {%for video in data.videos %}
+            <a href="{{video.url}}" class="video" style="display: flex;">
+                <img src="{{video.thumbnail}}" alt="VideoThumbnail">
+                <div class="block" style="align-items: start;">
+                    <div class="roboto-bold-italic">{{video.title}}</div>
+                    <div class="roboto-regular-italic">{{video.statistics.viewCount}} Views</div>
+                    <div class="roboto-regular-italic">{{video.datetime}}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

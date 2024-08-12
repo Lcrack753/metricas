@@ -8,6 +8,7 @@ from metricas.API_client import YouTubeAPI
 from metricas.API_config import YOUTUBE_KEY
 from metricas.graphs import YoutubeStatistics
 import plotly.express as px 
+import copy
 
 @cache_page(60 * 10)
 def youtube_api(request):
@@ -36,6 +37,10 @@ def main(request):
     full_url = request.build_absolute_uri(reverse('api_youtube')) + f'?userName={userName}' 
 
     youtube_statistics = YoutubeStatistics(full_url)
+    
     fig = youtube_statistics.chart_views()
     context['fig'] = fig.to_html()
-    return render(request, 'metricas/main.html',context)
+    
+    data = youtube_statistics.clean_data()
+    context['data'] = data
+    return render(request, 'metricas/youtube.html',context)

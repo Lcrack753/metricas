@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 import requests
 from pprint import pprint
-
+from datetime import datetime
 import plotly.express as px
 import pandas as pd
 
@@ -60,7 +60,8 @@ class YoutubeStatistics(StatisticsRequest):
                 'title': snippet.get('title', 'No title available'),
                 'publishedAt': snippet.get('publishedAt', 'No date available'),
                 'thumbnail': snippet.get('thumbnails', {}).get('standard', {}).get('url', DEFAULT_IMG_URL), # 640 x 480
-                'statistics': video.get('statistics', {})
+                'statistics': video.get('statistics', {}),
+                'datetime': datetime.strptime(snippet.get('publishedAt', '2024-01-01'),r"%Y-%m-%dT%H:%M:%SZ"),
             })
 
         return clean_data
@@ -82,7 +83,9 @@ class YoutubeStatistics(StatisticsRequest):
             margin=dict(l=0, r=0, t=0, b=0),
             xaxis_title='Date',
             yaxis_title='Views',
-            
+            height = 400,
+            # width = 'auto'
+
         )
         
         fig.update_xaxes(

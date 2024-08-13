@@ -39,6 +39,7 @@ class YoutubeStatistics(StatisticsRequest):
         }
         if not self.data:
             raise ValueError('Error: There is no data')
+        
         # Channel Info
         channel_items = self.data.get('channel', {}).get('items', [])
         if not channel_items:
@@ -63,6 +64,18 @@ class YoutubeStatistics(StatisticsRequest):
                 'statistics': video.get('statistics', {}),
                 'datetime': datetime.strptime(snippet.get('publishedAt', '2024-01-01'),r"%Y-%m-%dT%H:%M:%SZ"),
             })
+
+        # Additionals Statisctics, deppends of videos max results
+        total_videos = len(videos)
+        more_statistics = {'avgViews':0, 'avgLikes':0,'avgComments':0}
+        for video in clean_data.get('videos', []):
+            statistics =  video.get('statistics', {})
+            more_statistics['avgViews'] += int(statistics.get('viewCount', 0))
+            more_statistics['avgLikes'] += int(statistics.get('likeCount', 0))
+            more_statistics['avgComments'] += int(statistics.get('commentCount', 0))
+        more_statistics = {key: str(round(value / total_videos)) for key, value in more_statistics.items()}
+        
+        clean_data['channel']['statistics'].update(more_statistics)
 
         return clean_data
     
@@ -115,16 +128,16 @@ class YoutubeStatistics(StatisticsRequest):
             print('Error: No data.items or more than 1')
             return {}
         
+        avgs = []
         views = 0
-        actions = 0
-        suscribers = int(self.clean_data().get('channel',{}).get('statistics',{}).get('subscriberCount',0))
         for video in videos:
             statistics = video.get('statistics', {})
             views += int(statistics.get('viewCount', 0))
-            actions += int(statistics.get('likeCount', 0))
-            actions += int(statistics.get('commentCount', 0))
-            actions += int(statistics.get('favoriteCount', 0))
-        return f"{(actions / suscribers) * 100:.2f}"
+            actions = (int(statistics.get('likeCount', 0)) + 
+                        int(statistics.get('commentCount', 0)) +
+                        int(statistics.get('favoriteCount', 0)))
+            avgs.append((actions/views) * 100)
+        return f"{views / len(videos):.0f}"
 
 if __name__ == '__main__':
     graph = YoutubeStatistics(URL)

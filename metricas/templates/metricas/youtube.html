@@ -1,40 +1,78 @@
 {% extends 'main.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/youtube.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="content-youtube roboto-bold">
+<div class="youtube-content">
     <div class="header">
-        <div class="block">
-            <img src="{{data.channel.thumbnail}}" alt="Profile Photo" id="profilePhoto">
-            <div class="roboto-bold-italic">{{data.channel.title}}</div>
+        <div id="profile">
+            <img src="{{data.channel.thumbnail}}" alt="Profile Picture">
+            <div class="roboto-bold-italic">@{{data.channel.title}}</div>
         </div>
-        <div class="block">
-            <div style="color: var(--red);">{{data.channel.statistics.subscriberCount}} Suscriptions</div>
-            <div style="color: #0096c7;">{{data.channel.statistics.viewCount}} Views</div>
+        <div class="fill block roboto-regular">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9ZM11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13C11.4477 13 11 12.5523 11 12Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M21.83 11.2807C19.542 7.15186 15.8122 5 12 5C8.18777 5 4.45796 7.15186 2.17003 11.2807C1.94637 11.6844 1.94361 12.1821 2.16029 12.5876C4.41183 16.8013 8.1628 19 12 19C15.8372 19 19.5882 16.8013 21.8397 12.5876C22.0564 12.1821 22.0536 11.6844 21.83 11.2807ZM12 17C9.06097 17 6.04052 15.3724 4.09173 11.9487C6.06862 8.59614 9.07319 7 12 7C14.9268 7 17.9314 8.59614 19.9083 11.9487C17.9595 15.3724 14.939 17 12 17Z" />
+            </svg>
+            <div class="num roboto-bold">{{data.channel.statistics.viewCount}}</div>
+            <div class="txt roboto-regular-italic">Views</div>
         </div>
-        <div class="block" id="lastVideo">
-                <a href="{{data.videos.0.url}}">
-                    <img src="{{data.videos.0.thumbnail}}" alt="VideoThumbnail">
-                    <div class="block roboto-regular-italic">
-                        <div>{{data.videos.0.title}}</div>
-                        <div style="color: #0096c7;">{{data.videos.0.statistics.viewCount}} Views</div>
-                    </div>
-                </a>
+        <div class="fill block roboto-regular">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M3 18C3 15.3945 4.66081 13.1768 6.98156 12.348C7.61232 12.1227 8.29183 12 9 12C9.70817 12 10.3877 12.1227 11.0184 12.348C11.3611 12.4703 11.6893 12.623 12 12.8027C12.3107 12.623 12.6389 12.4703 12.9816 12.348C13.6123 12.1227 14.2918 12 15 12C15.7082 12 16.3877 12.1227 17.0184 12.348C19.3392 13.1768 21 15.3945 21 18V21H15.75V19.5H19.5V18C19.5 15.5147 17.4853 13.5 15 13.5C14.4029 13.5 13.833 13.6163 13.3116 13.8275C14.3568 14.9073 15 16.3785 15 18V21H3V18ZM9 11.25C8.31104 11.25 7.66548 11.0642 7.11068 10.74C5.9977 10.0896 5.25 8.88211 5.25 7.5C5.25 5.42893 6.92893 3.75 9 3.75C10.2267 3.75 11.3158 4.33901 12 5.24963C12.6842 4.33901 13.7733 3.75 15 3.75C17.0711 3.75 18.75 5.42893 18.75 7.5C18.75 8.88211 18.0023 10.0896 16.8893 10.74C16.3345 11.0642 15.689 11.25 15 11.25C14.311 11.25 13.6655 11.0642 13.1107 10.74C12.6776 10.4869 12.2999 10.1495 12 9.75036C11.7001 10.1496 11.3224 10.4869 10.8893 10.74C10.3345 11.0642 9.68896 11.25 9 11.25ZM13.5 18V19.5H4.5V18C4.5 15.5147 6.51472 13.5 9 13.5C11.4853 13.5 13.5 15.5147 13.5 18ZM11.25 7.5C11.25 8.74264 10.2426 9.75 9 9.75C7.75736 9.75 6.75 8.74264 6.75 7.5C6.75 6.25736 7.75736 5.25 9 5.25C10.2426 5.25 11.25 6.25736 11.25 7.5ZM15 5.25C13.7574 5.25 12.75 6.25736 12.75 7.5C12.75 8.74264 13.7574 9.75 15 9.75C16.2426 9.75 17.25 8.74264 17.25 7.5C17.25 6.25736 16.2426 5.25 15 5.25Z" />
+            </svg>
+            <div class="num roboto-bold">{{data.channel.statistics.subscriberCount}}</div>
+            <div class="txt roboto-regular-italic">Suscribers</div>
+        </div>
+        <div class="stroke block roboto-regular">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M19.5617 7C19.7904 5.69523 18.7863 4.5 17.4617 4.5H6.53788C5.21323 4.5 4.20922 5.69523 4.43784 7"
+                     stroke-width="1" />
+                <path
+                    d="M17.4999 4.5C17.5283 4.24092 17.5425 4.11135 17.5427 4.00435C17.545 2.98072 16.7739 2.12064 15.7561 2.01142C15.6497 2 15.5194 2 15.2588 2H8.74099C8.48035 2 8.35002 2 8.24362 2.01142C7.22584 2.12064 6.45481 2.98072 6.45704 4.00434C6.45727 4.11135 6.47146 4.2409 6.49983 4.5"
+                     stroke-width="1" />
+                <path
+                    d="M21.1935 16.793C20.8437 19.2739 20.6689 20.5143 19.7717 21.2572C18.8745 22 17.5512 22 14.9046 22H9.09536C6.44881 22 5.12553 22 4.22834 21.2572C3.33115 20.5143 3.15626 19.2739 2.80648 16.793L2.38351 13.793C1.93748 10.6294 1.71447 9.04765 2.66232 8.02383C3.61017 7 5.29758 7 8.67239 7H15.3276C18.7024 7 20.3898 7 21.3377 8.02383C22.0865 8.83268 22.1045 9.98979 21.8592 12"
+                     stroke-width="1" stroke-linecap="round" />
+                <path
+                    d="M14.5812 13.6159C15.1396 13.9621 15.1396 14.8582 14.5812 15.2044L11.2096 17.2945C10.6669 17.6309 10 17.1931 10 16.5003L10 12.32C10 11.6273 10.6669 11.1894 11.2096 11.5258L14.5812 13.6159Z"
+                     stroke-width="1" />
+            </svg>
+            <div class="num roboto-bold">{{data.channel.statistics.videoCount}} Videos</div>
+            <div class="txt roboto-regular-italic">Videos</div>
+        </div>
+        <div class="block path stroke roboto-regular">
+            <svg viewBox="0 -0.5 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M18.1 5.00016H6.9C6.53425 4.99455 6.18126 5.13448 5.9187 5.38917C5.65614 5.64385 5.50553 5.99242 5.5 6.35816V14.5002C5.50553 14.8659 5.65614 15.2145 5.9187 15.4692C6.18126 15.7238 6.53425 15.8638 6.9 15.8582H10.77C10.9881 15.857 11.2035 15.9056 11.4 16.0002L17.051 19.0002L17 14.5002H18.43C19.0106 14.5091 19.4891 14.0467 19.5 13.4662V6.35816C19.4945 5.99242 19.3439 5.64385 19.0813 5.38917C18.8187 5.13448 18.4657 4.99455 18.1 5.00016Z"
+                     stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                    d="M8.5 8.25024C8.08579 8.25024 7.75 8.58603 7.75 9.00024C7.75 9.41446 8.08579 9.75024 8.5 9.75024V8.25024ZM16.5 9.75024C16.9142 9.75024 17.25 9.41446 17.25 9.00024C17.25 8.58603 16.9142 8.25024 16.5 8.25024V9.75024ZM8.5 11.2502C8.08579 11.2502 7.75 11.586 7.75 12.0002C7.75 12.4145 8.08579 12.7502 8.5 12.7502V11.2502ZM14.5 12.7502C14.9142 12.7502 15.25 12.4145 15.25 12.0002C15.25 11.586 14.9142 11.2502 14.5 11.2502V12.7502ZM8.5 9.75024H16.5V8.25024H8.5V9.75024ZM8.5 12.7502H14.5V11.2502H8.5V12.7502Z" />
+            </svg>
+            <div class="num roboto-bold">{{engagment}} %</div>
+            <div class="txt roboto-regular-italic">Engagment</div>
         </div>
     </div>
-    <div class="graph1">{{fig|safe}}</div>
-    <div class="graph2">{{fig2|safe}}</div>
-    <div class="views">
-        <div class="">
-            {%for video in data.videos %}
-            <a href="{{video.url}}" class="video" style="display: flex;">
-                <img src="{{video.thumbnail}}" alt="VideoThumbnail">
-                <div class="block" style="align-items: start;">
-                    <div class="roboto-bold-italic">{{video.title}}</div>
-                    <div class="roboto-regular-italic">{{video.statistics.viewCount}} Views</div>
-                    <div class="roboto-regular-italic">{{video.datetime}}</div>
+    <div class="flex">
+        <div class="videos">
+            {% for video in videos %}
+            <a class="video" href="https://www.youtube.com/watch?v={{video.url}}">
+                <img src="{{video.thumbnail}}" alt="">
+                <div class="video-desc">
+                    <div class="title roboto-bold">{{video.title}}</div>
+                    <div class="datetime roboto-regular-italic">{{video.datetime}}</div>
                 </div>
             </a>
             {% endfor %}
+        </div>
+        <div class="graph1">
+            {{fig|safe}}
         </div>
     </div>
 </div>

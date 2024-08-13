@@ -71,39 +71,61 @@ class YoutubeStatistics(StatisticsRequest):
             data = self.clean_data()
             videos = data.get('videos', [])
         
-        assert len(videos) > 1, 'there must be more than one video'
+        # Procesar los datos
+        date_views = [(video.get('datetime'), video.get('statistics').get('viewCount'), video.get('title')) for video in videos]
+        df = pd.DataFrame.from_records(date_views, columns=['Date', 'Views', 'Title'])
+        df['Date'] = pd.to_datetime(df['Date'])
+        df['Views'] = pd.to_numeric(df['Views'], errors='coerce')
 
-        date_views = [(video.get('publishedAt'), video.get('statistics').get('viewCount')) for video in videos]
-        df = pd.DataFrame.from_records(date_views, columns=['Date', 'Views'])
-        fig = px.line(df, x='Date', y='Views')
-        
-        # Set layout options for responsive behavior
+        # Crear el gráfico de barras
+        fig = px.bar(df, x='Title', y='Views', hover_data={'Title': True, 'Views': True})
+
+        # Agregar el título completo a customdata
+        fig.update_traces(
+            marker_color='#a10000',
+            customdata=df[['Title']],  # Agrega el título completo a customdata
+            hovertemplate='<b>%{customdata[0]}</b><br>Views: %{y}<extra></extra>'  # Usa customdata para mostrar el título completo
+        )
+
+        # Personalización del diseño
         fig.update_layout(
             autosize=True,
-            margin=dict(l=0, r=0, t=0, b=0),
-            xaxis_title='Date',
+            margin=dict(l=10, r=10, t=40, b=80),  # Ajusta márgenes para mejor presentación
+            xaxis_title='Video',
             yaxis_title='Views',
-            height = 400,
-            # width = 'auto'
+            height=400,
+            xaxis_tickangle=-45,  # Rota las etiquetas del eje x para mejor visibilidad
+            yaxis_type='log',  # Eje Y logarítmico
+            xaxis=dict(
+                tickmode='array',
+                tickvals=df['Title'],
+                ticktext=['...' + title[-15:] if len(title) > 15 else title for title in df['Title']]  # Recorta los títulos largos
+            ),
+            plot_bgcolor='white',  # Fondo blanco para el gráfico
+            font=dict(size=12, color='black', family='roboto'),  # Fuente más legible
+            title_font=dict(size=16, family='roboto', color='black')  # Fuente para el título
+        )
 
-        )
-        
-        fig.update_xaxes(
-            ticks="outside",
-            ticklabelmode="period",
-            tickcolor="black",
-            ticklen=10,
-            minor=dict(
-                ticklen=4,
-                dtick=7*24*60*60*1000,
-                tick0="2016-07-03",
-                griddash='dot',
-                gridcolor='white'
-            )
-        )
-        
         return fig
-            
+
+        
+    def engagement(self):
+        videos = self.clean_data().get('videos', [])
+        if len(videos) < 1:
+            print('Error: No data.items or more than 1')
+            return {}
+        
+        views = 0
+        actions = 0
+        suscribers = int(self.clean_data().get('channel',{}).get('statistics',{}).get('subscriberCount',0))
+        for video in videos:
+            statistics = video.get('statistics', {})
+            views += int(statistics.get('viewCount', 0))
+            actions += int(statistics.get('likeCount', 0))
+            actions += int(statistics.get('commentCount', 0))
+            actions += int(statistics.get('favoriteCount', 0))
+        return f"{(actions / suscribers) * 100:.2f}"
+
 if __name__ == '__main__':
     graph = YoutubeStatistics(URL)
     fig = graph.chart_views()

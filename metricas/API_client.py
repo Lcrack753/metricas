@@ -1,9 +1,10 @@
-from metricas.API_config import YOUTUBE_KEY
+from metricas.API_config import YOUTUBE_KEY, MAX_RESULTS
 import requests
 import os
 import json
 import hashlib
 from pprint import pprint
+from datetime import datetime
 
 # Cache Manage
 BASE_DIR = os.path.dirname(__file__)
@@ -176,7 +177,7 @@ class YouTubeAPI(APIClient):
         
         params = {
             'channelId': self._userId,
-            'maxResults': 10,
+            'maxResults': MAX_RESULTS if MAX_RESULTS else 10,
             'order': 'date',
             'type': 'video',
         }
@@ -206,13 +207,6 @@ class YouTubeAPI(APIClient):
             'id': videos_ids_txt
         }
         return self._make_request('/videos',params)
-    
 
-if __name__ == '__main__':
-    # clear_cache()
-    # youtube = YouTubeAPI(api_key=YOUTUBE_KEY)
-    # youtube.userName = '@infoJST'
-    # # youtube.userId = 'UC_R6ZS7eKS8wZgJaOnc-9rA'
-    # data = youtube.videos_data()
-    # pprint(data)
-    pass
+
+    

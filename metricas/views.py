@@ -35,12 +35,17 @@ def main(request):
     
     userName = '@infoJST'
     full_url = request.build_absolute_uri(reverse('api_youtube')) + f'?userName={userName}' 
-
+    # userId = 'UCbJHfnWtshjo6zJg9Y8XzBw'
+    # full_url = request.build_absolute_uri(reverse('api_youtube')) + f'?userId={userId}' 
+    print(full_url)
     youtube_statistics = YoutubeStatistics(full_url)
     
     fig = youtube_statistics.chart_views()
     context['fig'] = fig.to_html()
     
     data = youtube_statistics.clean_data()
+    videos = data['videos'] # [:5]  + data['videos'][:5] + data['videos'][:5] +data['videos'][:5]
     context['data'] = data
+    context['videos'] = videos
+    context['engagment'] = youtube_statistics.engagement()
     return render(request, 'metricas/youtube.html',context)

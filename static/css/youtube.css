@@ -1,0 +1,139 @@
+.youtube-content {
+    width: 100%;
+    height: 100%;
+}
+.item.active::before {
+    background-color: var(--red);
+}
+
+.header, .videos, .graph1 {
+    background-color: var(--white);
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+}
+
+.videos {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 65rem;
+}
+
+img {
+    height: 100%;
+    border-radius: 0.5rem;
+}
+
+.fill path {
+    fill: var(--red);
+    stroke: none;
+}
+
+.stroke path {
+    fill: none;
+    stroke: var(--red);
+}
+
+.header svg {
+    height: 8rem;
+    width: 8rem;
+}
+
+.video {
+    height: 8rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.video-desc {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.video {
+    font-size: 1.2rem;
+    box-shadow: var(--shadow-light);
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.header {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    padding: 1.5rem;
+    height: 20rem;
+    gap: 2rem;
+    justify-content: space-around;
+    font-size: 1.8rem;
+}
+
+#profile {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+#profile div {
+    width: 20rem;
+    text-wrap: wrap;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    font-size: 3.2rem;
+}
+
+.block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.block .num {
+    font-size: 2.4rem;
+}
+
+.block .txt {
+    font-size: 1.6rem;
+
+}
+
+hr {
+    width: 100%;
+    color: black;
+}
+
+.youtube-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.flex {
+    display: flex;
+    gap: 2rem;
+    flex-grow: 1;
+}
+
+.graph1 {
+    flex: 1;
+    padding: 1.5rem;
+}
+
+@media screen and (max-width: 1200px) {
+    .flex, .header {
+        flex-direction: column;
+        height: fit-content;
+    }
+    .header img {
+        height: 8rem;
+    }
+}

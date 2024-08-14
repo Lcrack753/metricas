@@ -33,7 +33,7 @@ def youtube_api(request):
 def main(request):
     context = {}
     
-    userName = '@infoJST'
+    userName = '@joerogan'
     full_url = request.build_absolute_uri(reverse('api_youtube')) + f'?userName={userName}' 
     # userId = 'UCbJHfnWtshjo6zJg9Y8XzBw'
     # full_url = request.build_absolute_uri(reverse('api_youtube')) + f'?userId={userId}' 

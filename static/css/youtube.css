@@ -27,19 +27,8 @@ img {
     border-radius: 0.5rem;
 }
 
-.fill path {
-    fill: var(--red);
-    stroke: none;
-}
-
-.stroke path {
-    fill: none;
-    stroke: var(--red);
-}
-
-.header svg {
-    height: 8rem;
-    width: 8rem;
+#profile img {
+    height: 2rem;
 }
 
 .video {
@@ -65,13 +54,15 @@ img {
 
 .header {
     display: flex;
-    height: 100%;
     width: 100%;
     padding: 1.5rem;
-    height: 20rem;
+    min-height: 20rem;
+    height: fit-content;
     gap: 2rem;
     justify-content: space-around;
+    align-items: center; /* Alinea verticalmente */
     font-size: 1.8rem;
+    flex-wrap: wrap;
 }
 
 #profile {
@@ -106,6 +97,11 @@ img {
 
 }
 
+.block i {
+    color: var(--red);
+    font-size: 5rem;
+}
+
 hr {
     width: 100%;
     color: black;
@@ -121,6 +117,7 @@ hr {
     display: flex;
     gap: 2rem;
     flex-grow: 1;
+    flex-wrap: wrap;
 }
 
 .graph1 {
@@ -128,7 +125,7 @@ hr {
     padding: 1.5rem;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 5rem) {
     .flex, .header {
         flex-direction: column;
         height: fit-content;

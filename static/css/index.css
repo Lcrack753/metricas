@@ -22,7 +22,7 @@
 
 
 * {
-    box-sizing: border-box;
+    box-sizing: border-box !important;
 }
 
 /* font classes */
@@ -174,7 +174,7 @@
     height: 100%;
     background-color: var(--grey);
     padding: 2rem;
-    /* overflow-y: scroll; */
+    overflow-y: auto;
 }
 
 @media screen and (max-width: 1200px) {

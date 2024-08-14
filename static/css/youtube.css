@@ -1,136 +1,122 @@
-.youtube-content {
-    width: 100%;
-    height: 100%;
-}
 .item.active::before {
     background-color: var(--red);
 }
 
-.header, .videos, .graph1 {
+.content {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "videos graph1"
+        "videos graph2";
+    grid-template-rows: auto 1fr 1fr; 
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.content > div {
     background-color: var(--white);
     border-radius: 1rem;
     box-shadow: var(--shadow);
-}
-
-.videos {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    overflow-y: auto;
-    flex: 1;
-    max-height: 65rem;
-}
-
-img {
-    height: 100%;
-    border-radius: 0.5rem;
-}
-
-#profile img {
-    height: 2rem;
-}
-
-.video {
-    height: 8rem;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.video-desc {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2rem;
-}
-
-.video {
-    font-size: 1.2rem;
-    box-shadow: var(--shadow-light);
     padding: 1rem;
+}
+
+.header {grid-area: header;}
+.videos {grid-area: videos;}
+.graph1 {grid-area: graph1;}
+.graph2 {grid-area: graph2;}
+
+/* Estilo para el header */
+.header {
+    grid-area: header;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    grid-auto-rows: fit-content; /* Ajusta la altura para la vista móvil */
+    gap: 1rem;
+    text-align: center;
+}
+
+/* Estilo para los items dentro del header */
+.header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.header i {
+    font-size: 5rem;
+    color: var(--red);
+}
+
+.header .num {
+    font-size: 2rem;
+    overflow-wrap: break-word;
+}
+
+.header .txt {
+    font-size: 1.4rem;
+    overflow-wrap: break-word;
+}
+
+.header img {
+    height: 10rem;
     border-radius: 1rem;
 }
 
-.header {
-    display: flex;
-    width: 100%;
-    padding: 1.5rem;
-    min-height: 20rem;
-    height: fit-content;
-    gap: 2rem;
-    justify-content: space-around;
-    align-items: center; /* Alinea verticalmente */
-    font-size: 1.8rem;
-    flex-wrap: wrap;
+
+/* Videos */
+.videos {
+    overflow-y: auto;
 }
 
-#profile {
-    height: 100%;
+.video {
     display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-#profile div {
-    width: 20rem;
-    text-wrap: wrap;
-    overflow-wrap: break-word;
-    overflow: hidden;
-    font-size: 3.2rem;
-}
-
-.block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    height: 7rem;
     gap: 1rem;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    box-shadow: var(--shadow);
+    border-radius: 0.5rem;
 }
 
-.block .num {
-    font-size: 2.4rem;
+.video img {
+    height: 100%;
 }
 
-.block .txt {
-    font-size: 1.6rem;
-
-}
-
-.block i {
-    color: var(--red);
-    font-size: 5rem;
-}
-
-hr {
-    width: 100%;
-    color: black;
-}
-
-.youtube-content {
+.video div {
     display: flex;
+    justify-content: space-evenly;
     flex-direction: column;
-    gap: 2rem;
 }
 
-.flex {
-    display: flex;
-    gap: 2rem;
-    flex-grow: 1;
-    flex-wrap: wrap;
-}
+.video .title {font-size: 1.2rem;}
+.video .date {font-size: 1rem;}
 
-.graph1 {
-    flex: 1;
-    padding: 1.5rem;
-}
-
-@media screen and (max-width: 5rem) {
-    .flex, .header {
-        flex-direction: column;
-        height: fit-content;
+/* Ajustes responsive para diferentes tamaños de pantalla */
+@media (max-width: 1400px) {
+    .content {
+        grid-template-areas:
+            "header"
+            "videos"
+            "graph1"
+            "graph2";
+        grid-template-columns: 1fr; /* Solo una columna en dispositivos pequeños */
+        grid-template-rows: 1fr 30rem auto 30rem; /* Ajusta la altura para la vista móvil */
     }
-    .header img {
-        height: 8rem;
+    /* .header i {
+        font-size: 2rem;
+        color: var(--red);
     }
+    
+    .header .num {
+        font-size: 1rem;
+        overflow-wrap: break-word;
+    }
+    
+    .header .txt {
+        font-size: 0.8rem;
+        overflow-wrap: break-word;
+    } */
 }

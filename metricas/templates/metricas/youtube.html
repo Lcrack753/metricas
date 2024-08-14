@@ -5,58 +5,56 @@
 {% endblock %}
 
 {% block content %}
-<div class="youtube-content">
-    <div class="header">
-        <div id="profile">
-            <img src="{{data.channel.thumbnail}}" alt="Profile Picture">
-            <div class="roboto-bold-italic">@{{data.channel.title}}</div>
-        </div>
-        <div class="block">
-            <i class="nf nf-fa-eye"></i>
-            <div class="num roboto-bold">{{data.channel.statistics.viewCount}}</div>
-            <div class="txt roboto-regular-italic">Views</div>
-        </div>
-        <div class="block">
-           <i class="nf nf-oct-people"></i>
-            <div class="num roboto-bold">{{data.channel.statistics.subscriberCount}}</div>
-            <div class="txt roboto-regular-italic">Suscribers</div>
-        </div>
-        <div class="block">
-            <i class="nf nf-oct-video"></i>
-            <div class="num roboto-bold">{{data.channel.statistics.videoCount}} Videos</div>
-            <div class="txt roboto-regular-italic">Videos</div>
-        </div>
-        <div class="block">
-            <i class="nf nf-cod-comment_discussion"></i>
-            <div class="num roboto-bold">{{data.channel.statistics.avgComments}}</div>
-            <div class="txt roboto-regular-italic">Avg Comments</div>
-        </div>
-        <div class="block">
-            <i class="nf nf-md-hand_heart_outline"></i>
-            <div class="num roboto-bold">{{data.channel.statistics.avgLikes}}</div>
-            <div class="txt roboto-regular-italic">Avg Likes</div>
-        </div>
-        <div class="block">
-            <i class="nf nf-md-eye_plus_outline"></i>
-            <div class="num roboto-bold">{{data.channel.statistics.avgViews}}</div>
-            <div class="txt roboto-regular-italic">Avg Views</div>
-        </div>
+<div class="header">
+    <div>
+        <img src="{{data.channel.thumbnail}}" alt="Profile Picture">
+        <div class="txt roboto-bold-italic">@{{data.channel.title}}</div>
     </div>
-    <div class="flex">
-        <div class="videos">
-            {% for video in videos %}
-            <a class="video" href="https://www.youtube.com/watch?v={{video.url}}">
-                <img src="{{video.thumbnail}}" alt="">
-                <div class="video-desc">
-                    <div class="title roboto-bold">{{video.title}}</div>
-                    <div class="datetime roboto-regular-italic">{{video.datetime}}</div>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-        <div class="graph1">
-            {{fig|safe}}
-        </div>
+    <div>
+        <i class="nf nf-fa-eye"></i>
+        <div class="num roboto-bold">{{data.channel.statistics.viewCount}}</div>
+        <div class="txt roboto-regular-italic">Views</div>
+    </div>
+    <div>
+        <i class="nf nf-oct-people"></i>
+        <div class="num roboto-bold">{{data.channel.statistics.subscriberCount}}</div>
+        <div class="txt roboto-regular-italic">Suscribers</div>
+    </div>
+    <div>
+        <i class="nf nf-oct-video"></i>
+        <div class="num roboto-bold">{{data.channel.statistics.videoCount}} Videos</div>
+        <div class="txt roboto-regular-italic">Videos</div>
+    </div>
+    <div>
+        <i class="nf nf-cod-comment_discussion"></i>
+        <div class="num roboto-bold">{{data.channel.statistics.avgComments}}</div>
+        <div class="txt roboto-regular-italic">Avg Comments</div>
+    </div>
+    <div>
+        <i class="nf nf-md-hand_heart_outline"></i>
+        <div class="num roboto-bold">{{data.channel.statistics.avgLikes}}</div>
+        <div class="txt roboto-regular-italic">Avg Likes</div>
+    </div>
+    <div>
+        <i class="nf nf-md-eye_plus_outline"></i>
+        <div class="num roboto-bold">{{data.channel.statistics.avgViews}}</div>
+        <div class="txt roboto-regular-italic">Avg Views</div>
     </div>
 </div>
+<div class="videos">
+    {% for video in videos %}
+    <a class="video" href="#">
+        <img src="{{video.thumbnail}}" alt="">
+        <div>
+            <p class="title roboto-bold">{{video.title}}</p>
+            <p class="date roboto-regular-italic">{{video.datetime}}</p>
+        </div>
+    </a>
+    {% endfor %}
+    
+</div>
+<div class="graph1">
+    {{fig|safe}}
+</div>
+<div class="graph2">Graph2</div>
 {% endblock %}

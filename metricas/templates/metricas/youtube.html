@@ -43,7 +43,7 @@
 </div>
 <div class="videos">
     {% for video in videos %}
-    <a class="video" href="#">
+    <a class="video" href="https://www.youtube.com/watch?v={{video.url}}">
         <img src="{{video.thumbnail}}" alt="">
         <div>
             <p class="title roboto-bold">{{video.title}}</p>

@@ -47,5 +47,4 @@ def main(request):
     videos = data['videos'] # [:5]  + data['videos'][:5] + data['videos'][:5] +data['videos'][:5]
     context['data'] = data
     context['videos'] = videos
-    print(data)
     return render(request, 'metricas/youtube.html',context)

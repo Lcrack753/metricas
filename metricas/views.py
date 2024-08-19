@@ -1,14 +1,18 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.views.decorators.cache import cache_page
 from django.urls import reverse
 
 
 from metricas.API_client import YouTubeAPI
-from metricas.API_config import YOUTUBE_KEY
+from metricas.API_config import *
 from metricas.graphs import YoutubeStatistics
 import plotly.express as px 
 import copy
+
+def main(request):
+    pass
+
 
 @cache_page(60 * 10)
 def youtube_api(request):
@@ -30,7 +34,7 @@ def youtube_api(request):
 
 
 # Create your views here.
-def main(request):
+def youtube(request):
     context = {}
     
     userName = '@joerogan'

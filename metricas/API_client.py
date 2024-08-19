@@ -52,7 +52,7 @@ class APIClient:
         self.base_url = base_url
         self.api_key = api_key
 
-    def _make_request(self, endpoint: str, params: dict = None) -> dict:
+    def _make_request(self, endpoint: str, params: dict = None, headers: dict = None) -> dict:
         if params is None:
             params = {}
         if self.api_key:
@@ -61,7 +61,8 @@ class APIClient:
         cache_key = generate_cache_key(endpoint, params)
         cached_response = read_from_cache(cache_key)
         
-        headers = {}
+        if headers is None:
+            headers = {}
         if cached_response and 'etag' in cached_response:
             headers['If-None-Match'] = cached_response['etag']
 
@@ -69,7 +70,7 @@ class APIClient:
             response = requests.get(f"{self.base_url}{endpoint}", params=params, headers=headers)
             if response.status_code == 304:
                 # Return cached response if server indicates not modified
-                print(f"Using cached response (304 Not Modified)\nrequest: {self.base_url+endpoint}")
+                print(f"Using cached response (304 Not Modified)\nrequest: {self.base_url+endpoint}\nparams: {params}\n")
                 return cached_response['data']
 
             response.raise_for_status()
@@ -81,7 +82,7 @@ class APIClient:
 
             # Save the new data to cache
             save_to_cache(cache_key, data, etag)
-            print(f"New Cache\nrequest: {self.base_url+endpoint}")
+            print(f"New Cache\nrequest: {self.base_url+endpoint}\nparams: {params}\n")
 
             return data
         except requests.HTTPError as e:
@@ -93,7 +94,7 @@ class APIClient:
     def extract_etag(self, response: requests.Response) -> str:
         """Extracts ETag from the response headers"""
         # Default implementation; can be overridden in subclasses
-        return response.headers.get('ETag')
+        return response.headers.get('ETag','')
 
 
 class YouTubeAPI(APIClient):

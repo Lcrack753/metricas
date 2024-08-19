@@ -15,5 +15,9 @@ TWITTER_ACCESS_TOKEN_SECRET = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 
 FACEBOOK_KEY = os.getenv('FACEBOOK_KEY')
 
+DEFAULT_IMG_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/65/Baby.tux-800x800.png'
+
 # Youtube
-MAX_RESULTS = 20
+YOUTUBE_MAX_RESULTS = 20
+TWITTER_MAX_RESULTS = 20
+

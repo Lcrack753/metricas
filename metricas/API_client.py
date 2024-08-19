@@ -1,10 +1,13 @@
-from metricas.API_config import YOUTUBE_KEY, MAX_RESULTS
+import dateparser.parser
+from metricas.API_config import *
 import requests
 import os
 import json
 import hashlib
 from pprint import pprint
 from datetime import datetime
+import dateparser
+from ntscraper import Nitter #Scrapper For twitter
 
 # Cache Manage
 BASE_DIR = os.path.dirname(__file__)
@@ -178,7 +181,7 @@ class YouTubeAPI(APIClient):
         
         params = {
             'channelId': self._userId,
-            'maxResults': MAX_RESULTS if MAX_RESULTS else 10,
+            'maxResults': YOUTUBE_MAX_RESULTS if YOUTUBE_MAX_RESULTS else 10,
             'order': 'date',
             'type': 'video',
         }
@@ -210,4 +213,51 @@ class YouTubeAPI(APIClient):
         return self._make_request('/videos',params)
 
 
+class TwitterAPI:
+    def __init__(self,username:str) -> None:
+        self.user = username
+        self.scraper = Nitter(log_level=1, skip_instance_check=False)
+
+    def get_tweets(self):
+        number = TWITTER_MAX_RESULTS if TWITTER_MAX_RESULTS else 20
+        return self.scraper.get_tweets(self.user, mode='user',number=number)
+    
+    def get_userInfo(self):
+        return self.scraper.get_profile_info(self.user)
+    
+    def clean_data(self):
+        tweets = self.get_tweets().get('tweets', [])
+        userinfo = self.get_userInfo()
+        tweets = [tweet for tweet in tweets if tweet.get('link').find(self.user) != -1]
+        data = {
+            'profile': {},
+            'tweets': []
+        }
+        more_statistics = {'avgRetweets':0, 'avgLikes':0,'avgComments':0, 'avgQuotes':0}
+
+        for tweet in tweets:
+            stats = tweet.get('stats', {})
+            d = {
+                'url': tweet.get('link','#'),
+                'text': tweet.get('text', ''),
+                'picture': tweet.get('picture', [DEFAULT_IMG_URL])[0],
+                'video': tweet.get('videos', ['No video Found']),
+                'statistics': stats,
+                'datetime': dateparser.parse(tweet.get('date', '26/06/2003 15:00'))
+            }
+            data['tweets'].append(d)
+
+            more_statistics['avgRetweets'] += int(stats.get('retweets', 0))   
+            more_statistics['avgLikes'] += int(stats.get('likes', 0))   
+            more_statistics['avgComments'] += int(stats.get('comments', 0))   
+            more_statistics['avgQuotes'] += int(stats.get('quotes', 0))   
+
+        total_tweets = len(tweets)
+        more_statistics = {key: str(round(value / total_tweets)) for key, value in more_statistics.items()}
+
+        data['profile'] = userinfo
+        data['profile']['joined'] = dateparser.parse(userinfo.get('joined','26/06/2003 15:00'))
+        data['profile']['stats'].update(more_statistics) 
+        
+        return data
     

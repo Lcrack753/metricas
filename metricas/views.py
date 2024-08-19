@@ -4,7 +4,7 @@ from django.views.decorators.cache import cache_page
 from django.urls import reverse
 
 
-from metricas.API_client import YouTubeAPI
+from metricas.API_client import YouTubeAPI, TwitterAPI
 from metricas.API_config import *
 from metricas.graphs import YoutubeStatistics
 import plotly.express as px 
@@ -13,6 +13,15 @@ import copy
 def main(request):
     pass
 
+
+@cache_page(60 * 100)
+def twitter_api(request):
+    userName = request.GET.get('userName')
+    if not userName:
+        return HttpResponseBadRequest('No userName provided')
+    twitter = TwitterAPI(userName)
+    
+    return JsonResponse(twitter.clean_data(), safe=False)
 
 @cache_page(60 * 10)
 def youtube_api(request):
@@ -24,7 +33,7 @@ def youtube_api(request):
     elif userId:
         youtube.userId = userId
     else:
-        return HttpResponseBadRequest('No user provided')
+        return HttpResponseBadRequest('No userName or userID provided')
     data = {
         'channel': youtube.channel_data(),
         'videos': youtube.videos_data()
@@ -52,3 +61,6 @@ def youtube(request):
     context['data'] = data
     context['videos'] = videos
     return render(request, 'metricas/youtube.html',context)
+
+def twitter(request):
+    return render(request,'metricas/twitter.html')

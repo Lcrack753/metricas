@@ -1,0 +1,79 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/twitter.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <div id="loader">
+        <svg viewBox="25 25 50 50">
+            <circle r="20" cy="50" cx="50"></circle>
+        </svg>
+    </div>
+</div>
+<div class="data">
+    <div id="loader">
+        <svg viewBox="25 25 50 50">
+            <circle r="20" cy="50" cx="50"></circle>
+        </svg>
+    </div>
+</div>
+<div class="graph1">
+    <div id="loader">
+        <svg viewBox="25 25 50 50">
+            <circle r="20" cy="50" cx="50"></circle>
+        </svg>
+    </div>
+</div>
+<div class="graph2">
+    <div id="loader">
+        <svg viewBox="25 25 50 50">
+            <circle r="20" cy="50" cx="50"></circle>
+        </svg>
+    </div>
+</div>
+
+{% endblock %}
+{% block js %}
+<script src="{% static 'js/twitter.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    fetch('{% url "api_twitter" %}?userName=joerogan')
+        .then(response => response.json())
+        .then(data => {
+            populate(data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+});
+
+function populate(data) {
+    let header = document.querySelector('.header');
+    header.innerHTML = `
+        <div>
+        <img src='${data.profile.image}'>
+        <div class="txt roboto-bold-italic">${data.profile.username}</div>
+        </div>
+    `;
+    header.appendChild(header_item('Followers',data.profile.stats.followers,'nf nf-oct-people'));
+    header.appendChild(header_item('Likes',data.profile.stats.likes,'nf nf-md-hand_heart_outline'));
+    header.appendChild(header_item('Tweets',data.profile.stats.tweets,'nf nf-md-page_next'));
+    header.appendChild(header_item('Avg Likes',data.profile.stats.avgLikes,'nf nf-md-hand_heart_outline'));
+    header.appendChild(header_item('Avg Comments',data.profile.stats.avgComments,'nf nf-cod-comment_discussion'));
+    header.appendChild(header_item('Avg Retweets',data.profile.stats.avgRetweets,'nf nf-fa-square_twitter'));
+    header.appendChild(header_item('Avg Quotes',data.profile.stats.avgQuotes,'nf nf-md-comment_quote'));
+}
+
+function header_item(txt,num,icon) {
+    let div = document.createElement('div');
+    div.innerHTML = `
+        <i class="${icon}"></i>
+        <div class="num roboto-bold">${num}</div>
+        <div class="txt roboto-regular-italic">${txt}</div>
+    `
+    return div
+}
+</script>
+{% endblock %}

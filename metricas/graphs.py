@@ -139,7 +139,4 @@ class YoutubeStatistics(StatisticsRequest):
             avgs.append((actions/views) * 100)
         return f"{views / len(videos):.0f}"
 
-if __name__ == '__main__':
-    graph = YoutubeStatistics(URL)
-    fig = graph.chart_views()
-    fig.show()
+

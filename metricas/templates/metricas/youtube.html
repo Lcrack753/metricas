@@ -41,7 +41,7 @@
         <div class="txt roboto-regular-italic">Avg Views</div>
     </div>
 </div>
-<div class="videos">
+<div class="data">
     {% for video in videos %}
     <a class="video" href="https://www.youtube.com/watch?v={{video.url}}">
         <img src="{{video.thumbnail}}" alt="">
@@ -57,4 +57,10 @@
     {{fig|safe}}
 </div>
 <div class="graph2">Graph2</div>
+{% endblock %}
+
+{% block js %}
+<script>
+addClassToElementById('item-youtube', 'active');
+</script>
 {% endblock %}

@@ -1,0 +1,7 @@
+.item.active::before {
+    background-color: #2F81F7;
+}
+
+.header i {
+    color: #2F81F7;
+}

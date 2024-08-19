@@ -2,73 +2,8 @@
     background-color: var(--red);
 }
 
-.content {
-    display: grid;
-    grid-template-areas:
-        "header header"
-        "videos graph1"
-        "videos graph2";
-    grid-template-rows: auto 1fr 1fr; 
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-}
-
-.content > div {
-    background-color: var(--white);
-    border-radius: 1rem;
-    box-shadow: var(--shadow);
-    padding: 1rem;
-}
-
-.header {grid-area: header;}
-.videos {grid-area: videos;}
-.graph1 {grid-area: graph1;}
-.graph2 {grid-area: graph2;}
-
-/* Estilo para el header */
-.header {
-    grid-area: header;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    grid-auto-rows: fit-content; /* Ajusta la altura para la vista móvil */
-    gap: 1rem;
-    text-align: center;
-}
-
-/* Estilo para los items dentro del header */
-.header > div {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
 .header i {
-    font-size: 5rem;
     color: var(--red);
-}
-
-.header .num {
-    font-size: 2rem;
-    overflow-wrap: break-word;
-}
-
-.header .txt {
-    font-size: 1.4rem;
-    overflow-wrap: break-word;
-}
-
-.header img {
-    height: 10rem;
-    border-radius: 1rem;
-}
-
-
-/* Videos */
-.videos {
-    overflow-y: auto;
 }
 
 .video {
@@ -93,30 +28,3 @@
 
 .video .title {font-size: 1.2rem;}
 .video .date {font-size: 1rem;}
-
-/* Ajustes responsive para diferentes tamaños de pantalla */
-@media (max-width: 1400px) {
-    .content {
-        grid-template-areas:
-            "header"
-            "videos"
-            "graph1"
-            "graph2";
-        grid-template-columns: 1fr; /* Solo una columna en dispositivos pequeños */
-        grid-template-rows: 1fr 30rem auto 30rem; /* Ajusta la altura para la vista móvil */
-    }
-    /* .header i {
-        font-size: 2rem;
-        color: var(--red);
-    }
-    
-    .header .num {
-        font-size: 1rem;
-        overflow-wrap: break-word;
-    }
-    
-    .header .txt {
-        font-size: 0.8rem;
-        overflow-wrap: break-word;
-    } */
-}

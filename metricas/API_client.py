@@ -1,5 +1,6 @@
 import dateparser.parser
 from metricas.API_config import *
+from .utils import *
 import requests
 import os
 import json
@@ -8,6 +9,10 @@ from pprint import pprint
 from datetime import datetime
 import dateparser
 from ntscraper import Nitter #Scrapper For twitter
+import plotly.graph_objects as go
+
+from .models import Response
+from django.http import HttpRequest
 
 # Cache Manage
 BASE_DIR = os.path.dirname(__file__)
@@ -213,22 +218,51 @@ class YouTubeAPI(APIClient):
         return self._make_request('/videos',params)
 
 
-class TwitterAPI:
-    def __init__(self,username:str) -> None:
-        self.user = username
-        self.scraper = Nitter(log_level=1, skip_instance_check=False)
+class TwitterScraper:
+    """Scrape Twitter profile and tweets data"""
 
-    def get_tweets(self):
-        number = TWITTER_MAX_RESULTS if TWITTER_MAX_RESULTS else 20
-        return self.scraper.get_tweets(self.user, mode='user',number=number)
+    def __init__(self, log_level: int = 1, skip_instance_check: bool = False):
+        self.log_level = log_level
+        self.skip_instance_check = skip_instance_check
+        
+
+    def _get_tweets(self, username: str, number: int = 20) -> dict:
+        try:
+            return self.scraper.get_tweets(username, mode='user', number=number).get('tweets', [])
+        except Exception as e:
+            print(f"Error obteniendo tweets: {e}")
+            return []
+
+    def _get_profile_info(self, username: str) -> dict:
+        try:
+            return self.scraper.get_profile_info(username)
+        except Exception as e:
+            print(f"Error obteniendo perfil: {e}")
+            return {}
+        
+    def get_data(self, username: str, number: int = 20) -> tuple:
+        """
+        Get profile data and tweets based on the username
+        :param username: username of the twitter profile
+        :param number: max number of tweets scraped
+        :return: tuple like (profile_info, profile_tweets) 
+        """
+        self.scraper = Nitter(log_level=self.log_level, skip_instance_check=self.skip_instance_check)
+        return (self._get_profile_info(username),self._get_tweets(username,number))
+
+class TwitterData:
     
-    def get_userInfo(self):
-        return self.scraper.get_profile_info(self.user)
-    
-    def clean_data(self):
-        tweets = self.get_tweets().get('tweets', [])
-        userinfo = self.get_userInfo()
-        tweets = [tweet for tweet in tweets if tweet.get('link').find(self.user) != -1]
+    """Handle TwitterScraper return data"""
+    def clean_data(self, data: tuple = None) -> dict:
+        """
+        Clear data from TwitterScraper 
+        """
+        if data:
+            userinfo, tweets = data
+        else:
+            print('Error: No Data, excecute get_data()')
+            return {}
+        # tweets = [tweet for tweet in tweets if tweet.get('link').find(userinfo.get('')) != -1]
         data = {
             'profile': {},
             'tweets': []
@@ -243,7 +277,7 @@ class TwitterAPI:
                 'picture': tweet.get('picture', [DEFAULT_IMG_URL])[0],
                 'video': tweet.get('videos', ['No video Found']),
                 'statistics': stats,
-                'datetime': dateparser.parse(tweet.get('date', '26/06/2003 15:00'))
+                'datetime': dateparser.parse(tweet.get('date', '26/06/2003 15:00')).isoformat()
             }
             data['tweets'].append(d)
 
@@ -256,8 +290,126 @@ class TwitterAPI:
         more_statistics = {key: str(round(value / total_tweets)) for key, value in more_statistics.items()}
 
         data['profile'] = userinfo
-        data['profile']['joined'] = dateparser.parse(userinfo.get('joined','26/06/2003 15:00'))
+        data['profile']['joined'] = dateparser.parse(userinfo.get('joined','26/06/2003 15:00')).isoformat()
         data['profile']['stats'].update(more_statistics) 
         
         return data
     
+class TwitterGraphs:
+    def create_tweet_graph(self, tweets: list = None):
+        if not tweets:
+            print("No tweets data provided.")
+            return None
+
+        tweet_texts = [tweet.get('text', 'No text')[:15] + '...' for tweet in tweets]  # Limit to 15 characters
+        retweets = [tweet.get('statistics', {}).get('retweets', 0) for tweet in tweets]
+        likes = [tweet.get('statistics', {}).get('likes', 0) for tweet in tweets]
+        quotes = [tweet.get('statistics', {}).get('quotes', 0) for tweet in tweets]
+        comments = [tweet.get('statistics', {}).get('comments', 0) for tweet in tweets]
+
+        # Crear el gráfico de barras apiladas
+        fig = go.Figure()
+
+        # Paleta de colores azul
+        colors = ['#1f77b4', '#aec7e8', '#7f7f7f', '#c7c7c7']  # Ejemplo de paleta azul
+
+        # Añadir las barras apiladas para cada métrica
+        fig.add_trace(go.Bar(
+            x=tweet_texts,
+            y=retweets,
+            name='Retweets',
+            marker=dict(color=colors[0])
+        ))
+
+        fig.add_trace(go.Bar(
+            x=tweet_texts,
+            y=likes,
+            name='Likes',
+            marker=dict(color=colors[1])
+        ))
+
+        fig.add_trace(go.Bar(
+            x=tweet_texts,
+            y=quotes,
+            name='Quotes',
+            marker=dict(color=colors[2])
+        ))
+
+        fig.add_trace(go.Bar(
+            x=tweet_texts,
+            y=comments,
+            name='Comments',
+            marker=dict(color=colors[3])
+        ))
+
+        # Configuración del diseño del gráfico
+        fig.update_layout(
+            autosize=True,  # Hacer el gráfico adaptable al tamaño del contenedor
+            barmode='stack',  # Configura las barras para que se apilen
+            legend_title='Métricas',
+            xaxis=dict(
+                tickangle=-45,
+                tickmode='array',
+                tickvals=list(range(len(tweet_texts))),
+                ticktext=tweet_texts,
+                title_font=dict(family="Roboto, sans-serif", size=14),
+                tickfont=dict(family="Roboto, sans-serif", size=12)
+            ),
+            yaxis=dict(
+                title_font=dict(family="Roboto, sans-serif", size=14),
+                tickfont=dict(family="Roboto, sans-serif", size=12),
+                type='log'
+            ),
+            title_font=dict(family="Roboto, sans-serif", size=16),
+            margin=dict(l=50, r=50, t=50, b=50)  # Ajusta los márgenes para mejorar la presentación
+        )
+
+        return fig
+
+    
+    
+    
+class TwitterAPI:
+    def __init__(self, username: str) -> None:
+        self.username = username
+        self.scrape = TwitterScraper()
+        self.cleaner = TwitterData()
+        self.graphs = TwitterGraphs()
+        self.data = None
+    
+    def str_data(self):
+        pprint(self.data)
+
+    def make_requests(self):
+        response = self.scrape.get_data(self.username)
+        self.data = self.cleaner.clean_data(response)
+        save_response(
+            service='Twitter',
+            params={'userName': self.username},
+            response=self.data
+        )
+        return self.data
+    
+    def search_responses(self):
+        responses = search_responses(
+                        service='Twitter',
+                        params={'userName': self.username}
+                    )
+        if not responses.exists():
+            print('Error: Responses not found')
+            return None
+        return responses    
+    
+    def last_response(self):
+        response = self.search_responses()
+        if not response:
+            print('Error: Response not found')
+            return None
+        self.data = response.first().response
+        return self.data
+        
+    def graph_tweets(self):
+        tweets = self.data.get('tweets', [])[:10]
+        return self.graphs.create_tweet_graph(tweets)
+
+        

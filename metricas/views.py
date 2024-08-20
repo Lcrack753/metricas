@@ -1,30 +1,48 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpRequest
 from django.views.decorators.cache import cache_page
 from django.urls import reverse
+from django.utils import timezone
+from .models import Response
+import requests
 
+from .utils import save_response
 
-from metricas.API_client import YouTubeAPI, TwitterAPI
+from metricas.API_client import YouTubeAPI, TwitterScraper, TwitterData, TwitterGraphs, TwitterAPI
 from metricas.API_config import *
 from metricas.graphs import YoutubeStatistics
 import plotly.express as px 
 import copy
+from datetime import datetime
 
-def main(request):
-    pass
-
+def main(request: HttpRequest):
+    twitter = TwitterAPI('joerogan')
+    data = twitter.last_response()
+    fig = twitter.graph_tweets()
+    return JsonResponse(data, safe=False)
 
 @cache_page(60 * 100)
-def twitter_api(request):
+def twitter_api(request: HttpRequest):
+    print('api twitter consultada')
     userName = request.GET.get('userName')
     if not userName:
         return HttpResponseBadRequest('No userName provided')
     twitter = TwitterAPI(userName)
+    if twitter.search_responses().first().date.date() == datetime.today().date():
+        print('Twitter API: DataBase Response')
+        data = twitter.last_response()
+    else:
+        print('Twitter API: Make request')
+        data = twitter.make_requests()
     
-    return JsonResponse(twitter.clean_data(), safe=False)
+    data['graphs'] = {
+        'tweets': twitter.graph_tweets().to_json()
+    }
+    return JsonResponse(data, safe=False)
 
 @cache_page(60 * 10)
 def youtube_api(request):
+    
     userName = request.GET.get('userName')
     userId = request.GET.get('userId')
     youtube = YouTubeAPI(YOUTUBE_KEY)
@@ -39,8 +57,6 @@ def youtube_api(request):
         'videos': youtube.videos_data()
     }
     return JsonResponse(data, safe=False)
-
-
 
 # Create your views here.
 def youtube(request):

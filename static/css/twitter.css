@@ -5,3 +5,8 @@
 .header i {
     color: #2F81F7;
 }
+
+.content {
+    grid-template-columns: 1fr 1fr;
+
+}

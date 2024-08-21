@@ -12,110 +12,40 @@
         </svg>
     </div>
 </div>
-<div class="data">
-    <div id="loader">
-        <svg viewBox="25 25 50 50">
-            <circle r="20" cy="50" cx="50"></circle>
-        </svg>
-    </div>
+<div class="data" id="databody">
+    <!-- <div class="tweet">
+        <div class="tweet-header">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/65/Baby.tux-800x800.png" alt="">
+            <div class="roboto-bold-italic">@joerogan</div>
+        </div>
+        <div class="tweet-text roboto-regular">
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deserunt repudiandae voluptate reprehenderit
+            itaque doloribus nemo quo, dolor, natus ipsa culpa facere fugit quibusdam nesciunt sit aperiam. Repellat
+            magnam autem qui.
+        </div>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/65/Baby.tux-800x800.png" alt="">
+        <div class="tweet-stats roboto-bold-italic">
+            <div class="retweets">tweets</div>
+            <div class="likes">likes</div>
+            <div class="comments">comments</div>
+            <div class="quotes">quotes</div>
+        </div>
+    </div> -->
 </div>
-<div class="graph1" id="graph1" style="overflow: hidden;">
-    <div id="loader">
-        <svg viewBox="25 25 50 50">
-            <circle r="20" cy="50" cx="50"></circle>
-        </svg>
-    </div>
+<div class="graph1" id="graph1" style="position: relative;">
+    <canvas id="retweetsChart"></canvas>
 </div>
 <div class="graph2">
-    <div id="loader">
-        <svg viewBox="25 25 50 50">
-            <circle r="20" cy="50" cx="50"></circle>
-        </svg>
-    </div>
 </div>
 
 {% endblock %}
 {% block js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/twitter.js' %}"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
-
-</script>
-<script>
     document.addEventListener('DOMContentLoaded', () => {
-        fetch('{% url "api_twitter" %}?userName=joerogan')
-            .then(response => response.json())
-            .then(data => {
-                populate(data);
-                // Llamar a la función para cargar y renderizar el gráfico
-                loadAndRenderGraph(data);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
+        call_api('{% url "api_twitter" %}?userName=joerogan');
     });
-
-    // Función para cargar el gráfico JSON y renderizarlo
-    function loadAndRenderGraph(data) {
-        try {
-            // Registra los datos recibidos en la consola para inspeccionarlos
-            console.log('Datos recibidos para el gráfico:', data);
-
-            // Asegúrate de que data.graphs.tweets contiene el JSON del gráfico en formato de cadena
-            const figJsonStr = data.graphs.tweets;
-
-            // Parsea la cadena JSON a un objeto JSON
-            const figJson = JSON.parse(figJsonStr);
-
-            // Verifica si figJson y figJson.data están definidos
-            if (figJson && figJson.data && figJson.layout) {
-                // Inicializa el contenedor si es necesario
-                const graphContainer = document.getElementById('graph1');
-
-                // Verifica si el contenedor existe y está listo
-                if (graphContainer) {
-                    // Configura el tamaño del contenedor para que sea responsive
-                    graphContainer.style.width = '100%';
-                    graphContainer.style.height = '500px'; // Ajusta la altura según sea necesario
-
-                    // Renderiza el gráfico en el contenedor
-                    Plotly.react('graph1', figJson.data, figJson.layout);
-                } else {
-                    console.error('Contenedor del gráfico no encontrado:', 'graph1');
-                }
-            } else {
-                console.error('Estructura de datos inesperada para el gráfico:', figJson);
-            }
-        } catch (error) {
-            console.error('Error al cargar el gráfico:', error);
-        }
-    }
-
-    function populate(data) {
-        let header = document.querySelector('.header');
-        header.innerHTML = `
-            <div>
-            <img src='${data.profile.image}'>
-            <div class="txt roboto-bold-italic">${data.profile.username}</div>
-            </div>
-        `;
-        header.appendChild(header_item('Followers', data.profile.stats.followers, 'nf nf-oct-people'));
-        header.appendChild(header_item('Likes', data.profile.stats.likes, 'nf nf-md-hand_heart_outline'));
-        header.appendChild(header_item('Tweets', data.profile.stats.tweets, 'nf nf-md-page_next'));
-        header.appendChild(header_item('Avg Likes', data.profile.stats.avgLikes, 'nf nf-md-hand_heart_outline'));
-        header.appendChild(header_item('Avg Comments', data.profile.stats.avgComments, 'nf nf-cod-comment_discussion'));
-        header.appendChild(header_item('Avg Retweets', data.profile.stats.avgRetweets, 'nf nf-fa-square_twitter'));
-        header.appendChild(header_item('Avg Quotes', data.profile.stats.avgQuotes, 'nf nf-md-comment_quote'));
-    }
-
-    function header_item(txt, num, icon) {
-        let div = document.createElement('div');
-        div.innerHTML = `
-            <i class="${icon}"></i>
-            <div class="num roboto-bold">${num}</div>
-            <div class="txt roboto-regular-italic">${txt}</div>
-        `;
-        return div;
-    }
 </script>
 {% endblock %}

@@ -262,7 +262,8 @@ class TwitterData:
         else:
             print('Error: No Data, excecute get_data()')
             return {}
-        # tweets = [tweet for tweet in tweets if tweet.get('link').find(userinfo.get('')) != -1]
+        username = userinfo.get('username', '')[1:]
+        tweets = [tweet for tweet in tweets if tweet.get('link').find(username) != -1]
         data = {
             'profile': {},
             'tweets': []
@@ -272,9 +273,10 @@ class TwitterData:
         for tweet in tweets:
             stats = tweet.get('stats', {})
             d = {
+                'user': tweet.get('user', {}),
                 'url': tweet.get('link','#'),
                 'text': tweet.get('text', ''),
-                'picture': tweet.get('picture', [DEFAULT_IMG_URL])[0],
+                'picture': tweet.get('pictures', [DEFAULT_IMG_URL])[0] if tweet.get('pictures') else '',
                 'video': tweet.get('videos', ['No video Found']),
                 'statistics': stats,
                 'datetime': dateparser.parse(tweet.get('date', '26/06/2003 15:00')).isoformat()
@@ -287,108 +289,42 @@ class TwitterData:
             more_statistics['avgQuotes'] += int(stats.get('quotes', 0))   
 
         total_tweets = len(tweets)
-        more_statistics = {key: str(round(value / total_tweets)) for key, value in more_statistics.items()}
-
+        if total_tweets > 0:
+            more_statistics = {key: str(round(value / total_tweets)) for key, value in more_statistics.items()}
+        else:
+            more_statistics = {key: 0 for key, value in more_statistics.items()}
         data['profile'] = userinfo
         data['profile']['joined'] = dateparser.parse(userinfo.get('joined','26/06/2003 15:00')).isoformat()
         data['profile']['stats'].update(more_statistics) 
         
         return data
-    
-class TwitterGraphs:
-    def create_tweet_graph(self, tweets: list = None):
-        if not tweets:
-            print("No tweets data provided.")
-            return None
-
-        tweet_texts = [tweet.get('text', 'No text')[:15] + '...' for tweet in tweets]  # Limit to 15 characters
-        retweets = [tweet.get('statistics', {}).get('retweets', 0) for tweet in tweets]
-        likes = [tweet.get('statistics', {}).get('likes', 0) for tweet in tweets]
-        quotes = [tweet.get('statistics', {}).get('quotes', 0) for tweet in tweets]
-        comments = [tweet.get('statistics', {}).get('comments', 0) for tweet in tweets]
-
-        # Crear el gráfico de barras apiladas
-        fig = go.Figure()
-
-        # Paleta de colores azul
-        colors = ['#1f77b4', '#aec7e8', '#7f7f7f', '#c7c7c7']  # Ejemplo de paleta azul
-
-        # Añadir las barras apiladas para cada métrica
-        fig.add_trace(go.Bar(
-            x=tweet_texts,
-            y=retweets,
-            name='Retweets',
-            marker=dict(color=colors[0])
-        ))
-
-        fig.add_trace(go.Bar(
-            x=tweet_texts,
-            y=likes,
-            name='Likes',
-            marker=dict(color=colors[1])
-        ))
-
-        fig.add_trace(go.Bar(
-            x=tweet_texts,
-            y=quotes,
-            name='Quotes',
-            marker=dict(color=colors[2])
-        ))
-
-        fig.add_trace(go.Bar(
-            x=tweet_texts,
-            y=comments,
-            name='Comments',
-            marker=dict(color=colors[3])
-        ))
-
-        # Configuración del diseño del gráfico
-        fig.update_layout(
-            autosize=True,  # Hacer el gráfico adaptable al tamaño del contenedor
-            barmode='stack',  # Configura las barras para que se apilen
-            legend_title='Métricas',
-            xaxis=dict(
-                tickangle=-45,
-                tickmode='array',
-                tickvals=list(range(len(tweet_texts))),
-                ticktext=tweet_texts,
-                title_font=dict(family="Roboto, sans-serif", size=14),
-                tickfont=dict(family="Roboto, sans-serif", size=12)
-            ),
-            yaxis=dict(
-                title_font=dict(family="Roboto, sans-serif", size=14),
-                tickfont=dict(family="Roboto, sans-serif", size=12),
-                type='log'
-            ),
-            title_font=dict(family="Roboto, sans-serif", size=16),
-            margin=dict(l=50, r=50, t=50, b=50)  # Ajusta los márgenes para mejorar la presentación
-        )
-
-        return fig
-
-    
-    
-    
+        
 class TwitterAPI:
     def __init__(self, username: str) -> None:
         self.username = username
         self.scrape = TwitterScraper()
         self.cleaner = TwitterData()
-        self.graphs = TwitterGraphs()
         self.data = None
     
     def str_data(self):
         pprint(self.data)
 
     def make_requests(self):
-        response = self.scrape.get_data(self.username)
-        self.data = self.cleaner.clean_data(response)
-        save_response(
-            service='Twitter',
-            params={'userName': self.username},
-            response=self.data
-        )
-        return self.data
+        try:
+            response = self.scrape.get_data(self.username)
+            userinfo, tweets = response
+            if not userinfo or not tweets:
+                raise ValueError('Make Request Fallida')
+            self.data = self.cleaner.clean_data(response)
+            save_response(
+                service='Twitter',
+                params={'userName': self.username},
+                response=self.data
+            )
+            return self.data        
+        except Exception as e:
+            print(e)
+        return {}
     
     def search_responses(self):
         responses = search_responses(
@@ -407,9 +343,3 @@ class TwitterAPI:
             return None
         self.data = response.first().response
         return self.data
-        
-    def graph_tweets(self):
-        tweets = self.data.get('tweets', [])[:10]
-        return self.graphs.create_tweet_graph(tweets)
-
-        

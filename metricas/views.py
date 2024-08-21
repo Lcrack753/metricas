@@ -8,7 +8,7 @@ import requests
 
 from .utils import save_response
 
-from metricas.API_client import YouTubeAPI, TwitterScraper, TwitterData, TwitterGraphs, TwitterAPI
+from metricas.API_client import YouTubeAPI, TwitterScraper, TwitterData, TwitterAPI
 from metricas.API_config import *
 from metricas.graphs import YoutubeStatistics
 import plotly.express as px 
@@ -34,10 +34,9 @@ def twitter_api(request: HttpRequest):
     else:
         print('Twitter API: Make request')
         data = twitter.make_requests()
-    
-    data['graphs'] = {
-        'tweets': twitter.graph_tweets().to_json()
-    }
+        if not data:
+            data = twitter.last_response()
+        
     return JsonResponse(data, safe=False)
 
 @cache_page(60 * 10)

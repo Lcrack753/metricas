@@ -7,6 +7,83 @@
 }
 
 .content {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 50rem 1fr;
 
+}
+
+.tweet {
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    width: 100%;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.data > div:not(:last-child) {
+    margin-bottom: 2rem;
+}
+
+.tweet-header {
+    display: flex;
+    flex-direction: row;
+    height: 5rem;
+    font-size: 1.6rem;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tweet-header img {
+    height: 5rem;
+    border-radius: 50%;
+}
+
+.tweet-text {
+    display: -webkit-box; /* Soporte para WebKit */
+    -webkit-line-clamp: 3; /* Número de líneas visibles antes de cortar el texto */
+    -webkit-box-orient: vertical; /* Orientación del contenedor de caja */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.4rem;
+    line-height: 1.6rem;
+    max-height: 4.8rem; /* 3 líneas x 1.6rem de line-height */
+    word-wrap: break-word;
+    text-align: justify; /* Justificar el texto */
+}
+
+/* Adicionalmente para asegurar que la última línea esté justificada correctamente */
+.tweet-text::after {
+    content: '';
+    display: block;
+    height: 1px; /* Ajusta el tamaño si es necesario */
+}
+
+.tweet i {
+    color: #2F81F7;
+}
+
+.tweet > img {
+    width: 100%;
+    height: auto;
+    max-height: 50rem;
+    max-width: 50rem;
+    border-radius: 1rem;
+    align-self: center;
+}
+
+.tweet-stats {
+    display: flex;
+    direction: row;
+    justify-content: flex-end;
+    font-size: 1.2rem;
+}
+
+.tweet-stats > div {
+    padding-right: 1rem;
+    padding-left: 1rem;
+}
+
+.tweet-stats > div:not(:last-child) {
+    border-right: 1px solid black;
 }
